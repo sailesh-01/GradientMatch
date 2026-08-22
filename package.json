@@ -1,0 +1,20 @@
+{
+  "name": "gradient-match",
+  "version": "2.0.0",
+  "description": "Gradient Discovery & Styling Tool with Color Theory Matcher, Custom Builder, and WCAG Contrast Checker",
+  "type": "module",
+  "scripts": {
+    "dev": "npx serve -l 3000 .",
+    "start": "npx serve -l 3000 ."
+  },
+  "keywords": [
+    "css-gradients",
+    "gradient-generator",
+    "color-theory",
+    "tailwind-css",
+    "wcag-contrast",
+    "web-design"
+  ],
+  "author": "Antigravity AI",
+  "license": "MIT"
+}

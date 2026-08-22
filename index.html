@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GradientMatch — Gradient Discovery, Matcher & Styling Tool</title>
+  <meta name="description" content="Discover, preview, match and export beautiful CSS gradients for your web projects with color theory and WCAG contrast checker.">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Custom CSS Tokens & Hallmark Styles -->
+  <link rel="stylesheet" href="./css/styles.css">
+</head>
+<body class="bg-main text-main font-body antialiased relative min-h-screen">
+  
+  <!-- Ambient Backdrop Glow -->
+  <div class="ambient-glow"></div>
+
+  <!-- Main App Wrapper -->
+  <div class="relative z-10 flex flex-col min-h-screen">
+    
+    <!-- Navbar Header -->
+    <header class="sticky top-0 z-40 glass-nav px-4 lg:px-8 py-3.5 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-sky-400 via-indigo-500 to-rose-500 flex items-center justify-center shadow-lg shadow-sky-500/20">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </div>
+        <div>
+          <span class="font-display font-extrabold text-xl tracking-tight text-main">Gradient<span class="text-sky-400">Match</span></span>
+          <span class="hidden sm:inline-block ml-2 text-xs font-mono px-2 py-0.5 rounded-full bg-sky-500/10 text-sky-400 border border-sky-500/20">v2.0</span>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="hidden md:flex items-center gap-1.5 bg-card/60 p-1.5 rounded-full border border-card">
+        <button class="pill-btn active" data-tab="gallery">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          <span>Gallery</span>
+        </button>
+        <button class="pill-btn" data-tab="matcher">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20z"/></svg>
+          <span>Gradient Matcher</span>
+        </button>
+        <button class="pill-btn" data-tab="builder">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+          <span>Custom Builder</span>
+        </button>
+        <button class="pill-btn" data-tab="favorites">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <span>Favorites</span>
+        </button>
+      </nav>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center gap-2.5">
+        <button id="btn-surprise" class="btn-primary py-2 px-3.5 text-xs sm:text-sm">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v3m0 12v3M3 12h3m12 0h3m-2.5-6.5l-2.1 2.1m-8.8 8.8l-2.1 2.1m0 -13l2.1 2.1m8.8 8.8l2.1 2.1"/></svg>
+          <span class="hidden sm:inline">Surprise Me</span>
+        </button>
+
+        <button id="theme-toggle" class="btn-icon" title="Toggle Light/Dark Mode">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Mobile Navigation Bar -->
+    <div class="md:hidden glass-nav px-4 py-2 flex items-center justify-around border-b border-card">
+      <button class="pill-btn text-xs py-1.5 px-3 active" data-tab="gallery">Gallery</button>
+      <button class="pill-btn text-xs py-1.5 px-3" data-tab="matcher">Matcher</button>
+      <button class="pill-btn text-xs py-1.5 px-3" data-tab="builder">Builder</button>
+      <button class="pill-btn text-xs py-1.5 px-3" data-tab="favorites">Favorites</button>
+    </div>
+
+    <!-- Main Container Content -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+      <!-- HERO SECTION -->
+      <section class="mb-10 text-center max-w-3xl mx-auto">
+        <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight mb-4 text-main">
+          Discover, Preview & Export <span class="bg-clip-text text-transparent bg-gradient-to-r from-sky-400 via-indigo-400 to-rose-400">CSS Gradients</span>
+        </h1>
+        <p class="text-muted text-base sm:text-lg mb-6">
+          Hand-curated preset collection, color theory gradient matcher, custom multi-stop builder, WCAG contrast analyzer, and instant CSS / Tailwind exports.
+        </p>
+      </section>
+
+      <!-- VIEW 1: GALLERY -->
+      <section data-view="gallery" class="space-y-6">
+        
+        <!-- Controls Bar: Search & Category Pills -->
+        <div class="flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between bg-card/40 p-4 rounded-xl border border-card">
+          <!-- Search Input -->
+          <div class="relative flex-1 max-w-md">
+            <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="search-input" placeholder="Search by name, tag or #hex code..." class="custom-input w-full pl-10 pr-4">
+          </div>
+
+          <!-- Sort Dropdown -->
+          <div class="flex items-center gap-3 justify-between md:justify-end">
+            <span class="text-xs text-muted font-medium whitespace-nowrap">Sort by:</span>
+            <select id="sort-select" class="custom-input py-2 text-xs">
+              <option value="default">Default Curated</option>
+              <option value="popular">Popular</option>
+              <option value="name">Name (A-Z)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Category Pills Bar -->
+        <div id="category-pills" class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none"></div>
+
+        <!-- Gradient Cards Grid -->
+        <div id="gallery-grid" class="gradient-grid pt-2"></div>
+      </section>
+
+      <!-- VIEW 2: GRADIENT MATCHER TOOL -->
+      <section data-view="matcher" class="hidden space-y-8">
+        <div class="glass-card p-6 sm:p-8 max-w-4xl mx-auto">
+          <div class="mb-6">
+            <h2 class="text-2xl font-bold mb-2">Gradient Matcher Tool</h2>
+            <p class="text-muted text-sm">Pick a base color and generate 6 complementary and harmonious gradients based on color theory (Complementary, Analogous, Triadic, Split-Complementary, Monochromatic).</p>
+          </div>
+
+          <!-- Base Color Picker Box -->
+          <div class="flex flex-col sm:flex-row items-center gap-6 p-5 rounded-xl bg-surface border border-card mb-8">
+            <div class="flex items-center gap-4">
+              <input type="color" id="matcher-color-picker" value="#38BDF8" class="w-14 h-14 rounded-xl cursor-pointer bg-transparent border-0">
+              <div>
+                <label class="block text-xs font-semibold text-muted uppercase mb-1">Base Hex Color</label>
+                <input type="text" id="matcher-hex-input" value="#38BDF8" class="custom-input font-mono w-32 uppercase text-sm font-bold">
+              </div>
+            </div>
+
+            <!-- Harmony Mode Filter Pills -->
+            <div class="flex-1 w-full flex items-center gap-2 overflow-x-auto">
+              <button class="pill-btn text-xs active" data-harmony="all">All Harmonies</button>
+              <button class="pill-btn text-xs" data-harmony="complementary">Complementary</button>
+              <button class="pill-btn text-xs" data-harmony="analogous">Analogous</button>
+              <button class="pill-btn text-xs" data-harmony="triadic">Triadic</button>
+              <button class="pill-btn text-xs" data-harmony="split">Split-Complementary</button>
+              <button class="pill-btn text-xs" data-harmony="monochromatic">Monochromatic</button>
+            </div>
+          </div>
+
+          <!-- Matcher Output Cards Grid -->
+          <div id="matcher-results-grid" class="gradient-grid"></div>
+        </div>
+      </section>
+
+      <!-- VIEW 3: CUSTOM GRADIENT BUILDER -->
+      <section data-view="builder" class="hidden space-y-8">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          
+          <!-- Live Preview Canvas & Output Code -->
+          <div class="lg:col-span-7 space-y-6">
+            <div class="glass-card p-4">
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-xs font-semibold text-muted uppercase tracking-wider">Live Preview Canvas</span>
+                <span id="builder-contrast-badge" class="px-3 py-1 text-xs font-semibold rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                  WCAG AA Pass
+                </span>
+              </div>
+              <div id="builder-live-preview" class="w-full h-80 sm:h-96 rounded-xl transition-all duration-300 shadow-inner flex items-center justify-center">
+                <div class="bg-black/40 backdrop-blur-md px-6 py-4 rounded-xl border border-white/10 text-center">
+                  <h3 class="text-2xl font-bold text-white mb-1">Gradient Preview</h3>
+                  <p class="text-xs text-white/80">Sample Typography Over Canvas</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Syntax Highlight Code Output -->
+            <div class="glass-card p-5 space-y-4">
+              <div>
+                <div class="flex items-center justify-between mb-1.5">
+                  <span class="text-xs font-mono text-sky-400">CSS Output</span>
+                  <button class="text-xs text-muted hover:text-white flex items-center gap-1" onclick="app.copyToClipboard(document.getElementById('builder-css-output').textContent, 'CSS copied!')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    <span>Copy</span>
+                  </button>
+                </div>
+                <div id="builder-css-output" class="code-box">background: linear-gradient(135deg, #F43F5E 0%, #38BDF8 100%);</div>
+              </div>
+
+              <div>
+                <div class="flex items-center justify-between mb-1.5">
+                  <span class="text-xs font-mono text-indigo-400">Tailwind Output</span>
+                  <button class="text-xs text-muted hover:text-white flex items-center gap-1" onclick="app.copyToClipboard(document.getElementById('builder-tw-output').textContent, 'Tailwind class copied!')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    <span>Copy</span>
+                  </button>
+                </div>
+                <div id="builder-tw-output" class="code-box text-indigo-300">bg-gradient-to-br from-[#F43F5E] to-[#38BDF8]</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Controls Column -->
+          <div class="lg:col-span-5 glass-card p-6 space-y-6">
+            <h3 class="text-xl font-bold border-b border-card pb-3">Gradient Controls</h3>
+
+            <!-- Gradient Type Selector -->
+            <div>
+              <label class="block text-xs font-semibold text-muted uppercase mb-2">Gradient Type</label>
+              <div class="grid grid-cols-3 gap-2">
+                <button class="pill-btn justify-center text-xs active" data-builder-type="linear">Linear</button>
+                <button class="pill-btn justify-center text-xs" data-builder-type="radial">Radial</button>
+                <button class="pill-btn justify-center text-xs" data-builder-type="conic">Conic</button>
+              </div>
+            </div>
+
+            <!-- Angle Slider -->
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <label class="text-xs font-semibold text-muted uppercase">Angle / Direction</label>
+                <span id="builder-angle-value" class="font-mono text-xs font-bold text-sky-400">135°</span>
+              </div>
+              <input type="range" id="builder-angle-slider" min="0" max="360" value="135" class="w-full">
+            </div>
+
+            <!-- Color Stops Manager -->
+            <div class="space-y-3">
+              <div class="flex items-center justify-between">
+                <label class="text-xs font-semibold text-muted uppercase">Color Stops</label>
+                <button id="builder-add-stop" class="text-xs text-sky-400 hover:underline flex items-center gap-1 font-semibold">+ Add Stop</button>
+              </div>
+
+              <!-- List of Stops -->
+              <div id="builder-stops-list" class="space-y-2.5"></div>
+            </div>
+
+            <!-- Buttons Row -->
+            <div class="pt-4 border-t border-card flex items-center gap-3">
+              <button id="builder-randomize" class="btn-secondary flex-1">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                <span>Randomize</span>
+              </button>
+              <button id="builder-save-btn" class="btn-primary flex-1">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                <span>Save Gradient</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 4: FAVORITES SECTION -->
+      <section data-view="favorites" class="hidden space-y-6">
+        <div class="flex items-center justify-between">
+          <h2 class="text-2xl font-bold">Saved Favorites</h2>
+        </div>
+
+        <div id="favorites-empty" class="hidden p-12 text-center glass-card max-w-lg mx-auto">
+          <svg class="mx-auto mb-3 text-muted" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <h3 class="text-lg font-bold mb-1">No Favorites Saved Yet</h3>
+          <p class="text-xs text-muted mb-4">Click the heart icon on any gradient card to save your favorite presets for quick access.</p>
+          <button class="btn-primary text-xs" onclick="app.activeTab='gallery'; app.render();">Browse Gallery</button>
+        </div>
+
+        <div id="favorites-grid" class="gradient-grid"></div>
+      </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-auto border-t border-card py-6 text-center text-xs text-muted">
+      <p>GradientMatch — Built with HTML5, CSS & Color Theory. 100% Client-Side.</p>
+    </footer>
+  </div>
+
+  <!-- INSPECTOR MODAL -->
+  <div id="modal-overlay" class="modal-overlay">
+    <div class="modal-container p-6 sm:p-8 space-y-6">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between">
+        <div>
+          <span id="modal-category-tag" class="text-xs font-mono font-bold text-sky-400 tracking-wider">CATEGORY</span>
+          <h2 id="modal-title" class="text-2xl font-bold text-main">Gradient Details</h2>
+        </div>
+        <button id="modal-close" class="btn-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <!-- Large Preview Canvas -->
+      <div id="modal-preview-swatch" class="w-full h-64 sm:h-72 rounded-xl border border-card shadow-lg flex items-center justify-center"></div>
+
+      <!-- Color Stops Badges -->
+      <div>
+        <label class="block text-xs font-semibold text-muted uppercase mb-2">Color Hex Badges</label>
+        <div id="modal-hex-badges" class="flex flex-wrap gap-2"></div>
+      </div>
+
+      <!-- WCAG Contrast Report -->
+      <div>
+        <label class="block text-xs font-semibold text-muted uppercase mb-2">WCAG 2.1 Accessibility Contrast Checker</label>
+        <div id="modal-contrast-report"></div>
+      </div>
+
+      <!-- Code Snippet Display -->
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <label class="text-xs font-semibold text-muted uppercase">Code Snippet</label>
+          <div class="flex items-center gap-1.5">
+            <button class="pill-btn text-xs px-3 py-1" onclick="app.modalExportTab='css'; app.renderModalCodeTab();">CSS</button>
+            <button class="pill-btn text-xs px-3 py-1" onclick="app.modalExportTab='tailwind'; app.renderModalCodeTab();">Tailwind</button>
+            <button class="pill-btn text-xs px-3 py-1" onclick="app.modalExportTab='svg'; app.renderModalCodeTab();">SVG</button>
+          </div>
+        </div>
+        <div id="modal-code-display" class="code-box"></div>
+      </div>
+
+      <!-- Export Actions Row -->
+      <div class="flex flex-wrap gap-2.5 pt-4 border-t border-card">
+        <button id="modal-copy-css" class="btn-primary text-xs flex-1">Copy CSS</button>
+        <button id="modal-copy-tw" class="btn-secondary text-xs flex-1">Copy Tailwind</button>
+        <button id="modal-download-svg" class="btn-secondary text-xs flex-1">Copy SVG</button>
+        <button id="modal-download-png" class="btn-secondary text-xs flex-1">Download PNG</button>
+        <button id="modal-share-url" class="btn-secondary text-xs flex-1">Share URL Link</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Toast Floating Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Main JavaScript App Entrypoint -->
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>
