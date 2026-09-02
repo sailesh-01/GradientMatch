@@ -67,12 +67,21 @@ class GradientMatchApp {
   // --- Theme Controller ---
   initTheme() {
     const htmlEl = document.documentElement;
+    const themeBtn = document.getElementById('theme-toggle');
     if (this.theme === 'light') {
       htmlEl.classList.add('light');
       htmlEl.classList.remove('dark');
+      if (themeBtn) {
+        themeBtn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>`;
+        themeBtn.title = "Switch to Dark Mode";
+      }
     } else {
       htmlEl.classList.add('dark');
       htmlEl.classList.remove('light');
+      if (themeBtn) {
+        themeBtn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>`;
+        themeBtn.title = "Switch to Light Mode";
+      }
     }
   }
 
@@ -80,7 +89,7 @@ class GradientMatchApp {
     this.theme = this.theme === 'dark' ? 'light' : 'dark';
     localStorage.setItem('gm_theme', this.theme);
     this.initTheme();
-    this.showToast(`Switched to ${this.theme} mode`);
+    this.showToast(`Switched to ${this.theme} mode 🌓`);
   }
 
   // --- LocalStorage Favorites ---
@@ -540,10 +549,17 @@ class GradientMatchApp {
     if (!container) return;
 
     container.innerHTML = CATEGORIES.map(cat => `
-      <button class="pill-btn ${this.activeCategory === cat.id ? 'active' : ''}" onclick="app.setCategory('${cat.id}')">
+      <button class="pill-btn ${this.activeCategory === cat.id ? 'active' : ''}" data-cat-id="${cat.id}">
         <span>${cat.name}</span>
       </button>
     `).join('');
+
+    container.querySelectorAll('[data-cat-id]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const catId = e.currentTarget.getAttribute('data-cat-id');
+        this.setCategory(catId);
+      });
+    });
   }
 
   setCategory(catId) {
@@ -576,9 +592,15 @@ class GradientMatchApp {
       grid.innerHTML = `
         <div class="col-span-full p-12 text-center glass-card">
           <p class="text-lg text-muted mb-2">No gradients found matching your filter</p>
-          <button class="btn-secondary" onclick="app.setCategory('all'); app.searchQuery=''; document.getElementById('search-input').value='';">Reset Filters</button>
+          <button class="btn-secondary" id="btn-reset-filters">Reset Filters</button>
         </div>
       `;
+      document.getElementById('btn-reset-filters')?.addEventListener('click', () => {
+        this.setCategory('all');
+        this.searchQuery = '';
+        const searchInput = document.getElementById('search-input');
+        if (searchInput) searchInput.value = '';
+      });
       return;
     }
 
