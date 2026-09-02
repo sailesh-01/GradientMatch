@@ -675,6 +675,25 @@ class GradientMatchApp {
       }
     });
 
+    // Mock UI Interactive Buttons
+    document.getElementById('mock-btn-primary')?.addEventListener('click', () => {
+      if (this.fullscreenGradient) {
+        this.copyToClipboard(generateCss(this.fullscreenGradient), 'CSS code copied to clipboard! 📋');
+        const textEl = document.getElementById('mock-btn-primary-text');
+        if (textEl) {
+          const orig = textEl.textContent;
+          textEl.textContent = 'Copied! ✓';
+          setTimeout(() => { if (textEl) textEl.textContent = orig; }, 1500);
+        }
+      }
+    });
+
+    document.getElementById('mock-btn-secondary')?.addEventListener('click', () => {
+      const cardEl = document.getElementById('mock-glass-card');
+      const isLight = cardEl?.classList.toggle('light-mode');
+      this.showToast(isLight ? 'Switched Mock Card to Light Glass ☀️' : 'Switched Mock Card to Dark Glass 🌙');
+    });
+
     // Keyboard Shortcuts
     window.addEventListener('keydown', (e) => {
       // If typing inside an input/textarea, ignore shortcuts

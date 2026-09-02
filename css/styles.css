@@ -673,6 +673,34 @@ input[type="range"]::-webkit-slider-thumb:hover {
   box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45);
   pointer-events: auto;
   animation: mockCardFloat 6s ease-in-out infinite alternate;
+  transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.mock-glass-card.light-mode {
+  background: rgba(255, 255, 255, 0.78) !important;
+  border-color: rgba(255, 255, 255, 0.65) !important;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25) !important;
+}
+
+.mock-glass-card.light-mode h3,
+.mock-glass-card.light-mode #fullscreen-clock {
+  color: #0f172a !important;
+  text-shadow: none !important;
+}
+
+.mock-glass-card.light-mode p {
+  color: #334155 !important;
+}
+
+.mock-glass-card.light-mode #mock-btn-primary {
+  background: #0f172a !important;
+  color: #ffffff !important;
+}
+
+.mock-glass-card.light-mode #mock-btn-secondary {
+  background: rgba(255, 255, 255, 0.85) !important;
+  color: #0f172a !important;
+  border-color: rgba(15, 23, 42, 0.2) !important;
 }
 
 @keyframes mockCardFloat {
