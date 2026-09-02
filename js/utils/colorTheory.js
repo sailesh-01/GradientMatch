@@ -102,6 +102,7 @@ export function generateHarmoniousGradients(baseHex, mode = 'all') {
   const createGradient = (id, name, harmonyType, stops, angle = 135) => ({
     id: `matched-${id}`,
     name,
+    category: 'matcher',
     harmonyType,
     type: 'linear',
     angle,

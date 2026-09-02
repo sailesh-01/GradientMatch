@@ -341,6 +341,44 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: 0 0 0 3px var(--accent-glow);
 }
 
+/* Color Picker Modern Box */
+input[type="color"].color-picker-box {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  width: 52px;
+  height: 52px;
+  border: 2px solid var(--border-card-hover);
+  border-radius: var(--radius-md);
+  padding: 0;
+  cursor: pointer;
+  background: transparent;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input[type="color"].color-picker-box:hover {
+  transform: scale(1.06);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 16px var(--accent-glow);
+}
+
+input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+  border-radius: var(--radius-md);
+}
+
+input[type="color"]::-webkit-color-swatch {
+  border: none;
+  border-radius: var(--radius-md);
+}
+
+input[type="color"]::-moz-color-swatch {
+  border: none;
+  border-radius: var(--radius-md);
+}
+
 /* Range Slider */
 input[type="range"] {
   -webkit-appearance: none;
@@ -472,28 +510,49 @@ input[type="range"]::-webkit-slider-thumb:hover {
 
 .fullscreen-canvas {
   position: absolute;
-  inset: -5%;
-  width: 110%;
-  height: 110%;
+  inset: -60vw -60vh;
+  width: 220vw;
+  height: 220vh;
   transition: background 0.4s ease;
+  transform-origin: center center;
 }
 
 .fullscreen-canvas.ambient-animated {
-  animation: ambientLiveDrift 16s ease-in-out infinite alternate;
+  animation: ambientLiveSpin 12s linear infinite;
 }
 
-@keyframes ambientLiveDrift {
+@keyframes ambientLiveSpin {
   0% {
-    transform: scale(1) rotate(0deg);
-    filter: hue-rotate(0deg) saturate(100%);
+    transform: rotate(0deg) scale(1.15);
+    filter: saturate(105%) hue-rotate(0deg);
   }
   50% {
-    transform: scale(1.08) rotate(4deg);
-    filter: hue-rotate(15deg) saturate(115%);
+    transform: rotate(180deg) scale(1.25);
+    filter: saturate(120%) hue-rotate(25deg);
   }
   100% {
-    transform: scale(1.02) rotate(-4deg);
-    filter: hue-rotate(-10deg) saturate(105%);
+    transform: rotate(360deg) scale(1.15);
+    filter: saturate(105%) hue-rotate(0deg);
+  }
+}
+
+/* Modal & Builder Preview Animation */
+.preview-animated {
+  animation: previewPulseSpin 6s ease-in-out infinite alternate !important;
+}
+
+@keyframes previewPulseSpin {
+  0% {
+    filter: hue-rotate(0deg) saturate(100%);
+    transform: scale(1.02);
+  }
+  50% {
+    filter: hue-rotate(35deg) saturate(125%);
+    transform: scale(1.06);
+  }
+  100% {
+    filter: hue-rotate(-25deg) saturate(110%);
+    transform: scale(1.02);
   }
 }
 

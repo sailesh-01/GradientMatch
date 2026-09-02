@@ -123,24 +123,41 @@
             <p class="text-muted text-sm">Pick a base color and generate 6 complementary and harmonious gradients based on color theory (Complementary, Analogous, Triadic, Split-Complementary, Monochromatic).</p>
           </div>
 
-          <!-- Base Color Picker Box -->
-          <div class="flex flex-col sm:flex-row items-center gap-6 p-5 rounded-xl bg-surface border border-card mb-8">
-            <div class="flex items-center gap-4">
-              <input type="color" id="matcher-color-picker" value="#38BDF8" class="w-14 h-14 rounded-xl cursor-pointer bg-transparent border-0">
-              <div>
-                <label class="block text-xs font-semibold text-muted uppercase mb-1">Base Hex Color</label>
-                <input type="text" id="matcher-hex-input" value="#38BDF8" class="custom-input font-mono w-32 uppercase text-sm font-bold">
+          <!-- Base Color Picker Box & Quick Swatches -->
+          <div class="p-5 rounded-xl bg-surface border border-card mb-8 space-y-4">
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <div class="flex items-center gap-4">
+                <input type="color" id="matcher-color-picker" value="#38BDF8" class="color-picker-box" title="Choose custom color">
+                <div>
+                  <label class="block text-xs font-semibold text-muted uppercase mb-1">Base Hex Color</label>
+                  <input type="text" id="matcher-hex-input" value="#38BDF8" placeholder="#38BDF8" class="custom-input font-mono w-32 uppercase text-sm font-bold">
+                </div>
+              </div>
+
+              <!-- Harmony Mode Filter Pills -->
+              <div class="flex items-center gap-2 overflow-x-auto pb-1 max-w-full">
+                <button class="pill-btn text-xs active" data-harmony="all">All Harmonies</button>
+                <button class="pill-btn text-xs" data-harmony="complementary">Complementary</button>
+                <button class="pill-btn text-xs" data-harmony="analogous">Analogous</button>
+                <button class="pill-btn text-xs" data-harmony="triadic">Triadic</button>
+                <button class="pill-btn text-xs" data-harmony="split">Split-Comp</button>
+                <button class="pill-btn text-xs" data-harmony="monochromatic">Monochrome</button>
               </div>
             </div>
 
-            <!-- Harmony Mode Filter Pills -->
-            <div class="flex-1 w-full flex items-center gap-2 overflow-x-auto">
-              <button class="pill-btn text-xs active" data-harmony="all">All Harmonies</button>
-              <button class="pill-btn text-xs" data-harmony="complementary">Complementary</button>
-              <button class="pill-btn text-xs" data-harmony="analogous">Analogous</button>
-              <button class="pill-btn text-xs" data-harmony="triadic">Triadic</button>
-              <button class="pill-btn text-xs" data-harmony="split">Split-Complementary</button>
-              <button class="pill-btn text-xs" data-harmony="monochromatic">Monochromatic</button>
+            <!-- Quick Color Palette Preset Swatches -->
+            <div class="pt-3 border-t border-card/60 flex items-center gap-2 flex-wrap">
+              <span class="text-xs text-muted font-medium mr-1">Quick Colors:</span>
+              <button class="w-6 h-6 rounded-full border border-white/20 transition-transform hover:scale-125 focus:ring-2 focus:ring-white" style="background: #38BDF8" onclick="app.setMatcherColor('#38BDF8')" title="Sky Blue (#38BDF8)"></button>
+              <button class="w-6 h-6 rounded-full border border-white/20 transition-transform hover:scale-125 focus:ring-2 focus:ring-white" style="background: #F43F5E" onclick="app.setMatcherColor('#F43F5E')" title="Rose (#F43F5E)"></button>
+              <button class="w-6 h-6 rounded-full border border-white/20 transition-transform hover:scale-125 focus:ring-2 focus:ring-white" style="background: #8B5CF6" onclick="app.setMatcherColor('#8B5CF6')" title="Purple (#8B5CF6)"></button>
+              <button class="w-6 h-6 rounded-full border border-white/20 transition-transform hover:scale-125 focus:ring-2 focus:ring-white" style="background: #10B981" onclick="app.setMatcherColor('#10B981')" title="Emerald (#10B981)"></button>
+              <button class="w-6 h-6 rounded-full border border-white/20 transition-transform hover:scale-125 focus:ring-2 focus:ring-white" style="background: #F59E0B" onclick="app.setMatcherColor('#F59E0B')" title="Amber (#F59E0B)"></button>
+              <button class="w-6 h-6 rounded-full border border-white/20 transition-transform hover:scale-125 focus:ring-2 focus:ring-white" style="background: #EC4899" onclick="app.setMatcherColor('#EC4899')" title="Pink (#EC4899)"></button>
+              <button class="w-6 h-6 rounded-full border border-white/20 transition-transform hover:scale-125 focus:ring-2 focus:ring-white" style="background: #6366F1" onclick="app.setMatcherColor('#6366F1')" title="Indigo (#6366F1)"></button>
+              <button class="w-6 h-6 rounded-full border border-white/20 transition-transform hover:scale-125 focus:ring-2 focus:ring-white" style="background: #06B6D4" onclick="app.setMatcherColor('#06B6D4')" title="Cyan (#06B6D4)"></button>
+              <button class="w-6 h-6 rounded-full border border-white/20 transition-transform hover:scale-125 focus:ring-2 focus:ring-white" style="background: #14B8A6" onclick="app.setMatcherColor('#14B8A6')" title="Teal (#14B8A6)"></button>
+              <button class="w-6 h-6 rounded-full border border-white/20 transition-transform hover:scale-125 focus:ring-2 focus:ring-white" style="background: #EF4444" onclick="app.setMatcherColor('#EF4444')" title="Red (#EF4444)"></button>
             </div>
           </div>
 
@@ -159,6 +176,10 @@
               <div class="flex items-center justify-between mb-3">
                 <span class="text-xs font-semibold text-muted uppercase tracking-wider">Live Preview Canvas</span>
                 <div class="flex items-center gap-2">
+                  <button id="builder-animate-btn" class="text-xs px-2.5 py-1 rounded-full bg-card hover:bg-card-hover border border-card text-muted hover:text-sky-400 flex items-center gap-1.5 transition" title="Toggle Live Rotation Animation">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+                    <span>Animate</span>
+                  </button>
                   <button id="builder-fullscreen-btn" class="text-xs px-2.5 py-1 rounded-full bg-card hover:bg-card-hover border border-card text-sky-400 flex items-center gap-1.5 transition">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
                     <span>Full Screen</span>
@@ -168,8 +189,8 @@
                   </span>
                 </div>
               </div>
-              <div id="builder-live-preview" class="w-full h-80 sm:h-96 rounded-xl transition-all duration-300 shadow-inner flex items-center justify-center relative group">
-                <div class="bg-black/40 backdrop-blur-md px-6 py-4 rounded-xl border border-white/10 text-center">
+              <div id="builder-live-preview" class="w-full h-80 sm:h-96 rounded-xl transition-all duration-300 shadow-inner flex items-center justify-center relative group overflow-hidden">
+                <div class="bg-black/40 backdrop-blur-md px-6 py-4 rounded-xl border border-white/10 text-center relative z-10">
                   <h3 class="text-2xl font-bold text-white mb-1">Gradient Preview</h3>
                   <p class="text-xs text-white/80">Sample Typography Over Canvas</p>
                 </div>
@@ -291,12 +312,18 @@
       </div>
 
       <!-- Large Preview Canvas -->
-      <div class="relative group">
-        <div id="modal-preview-swatch" class="w-full h-64 sm:h-72 rounded-xl border border-card shadow-lg flex items-center justify-center"></div>
-        <button id="modal-preview-fullscreen" class="absolute top-3 right-3 px-3 py-1.5 rounded-full bg-black/60 hover:bg-black/80 text-white text-xs font-semibold backdrop-blur-md border border-white/20 flex items-center gap-1.5 shadow-lg transition opacity-90 hover:opacity-100">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
-          <span>Full Screen Experience</span>
-        </button>
+      <div class="relative group overflow-hidden rounded-xl border border-card shadow-lg">
+        <div id="modal-preview-swatch" class="w-full h-64 sm:h-72 rounded-xl flex items-center justify-center transition-all duration-300"></div>
+        <div class="absolute top-3 right-3 flex items-center gap-2">
+          <button id="modal-preview-animate" class="px-3 py-1.5 rounded-full bg-black/60 hover:bg-black/80 text-white text-xs font-semibold backdrop-blur-md border border-white/20 flex items-center gap-1.5 shadow-lg transition" title="Toggle Live Animation">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+            <span>Animate</span>
+          </button>
+          <button id="modal-preview-fullscreen" class="px-3 py-1.5 rounded-full bg-black/60 hover:bg-black/80 text-white text-xs font-semibold backdrop-blur-md border border-white/20 flex items-center gap-1.5 shadow-lg transition opacity-90 hover:opacity-100">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+            <span>Full Screen Experience</span>
+          </button>
+        </div>
       </div>
 
       <!-- Color Stops Badges -->

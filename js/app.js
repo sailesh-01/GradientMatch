@@ -190,18 +190,22 @@ class GradientMatchApp {
     const baseHexInput = document.getElementById('matcher-hex-input');
 
     baseColorInput?.addEventListener('input', (e) => {
-      this.matcherBaseColor = e.target.value;
-      if (baseHexInput) baseHexInput.value = e.target.value.toUpperCase();
-      this.renderMatcherResults();
+      this.setMatcherColor(e.target.value);
+    });
+
+    baseHexInput?.addEventListener('input', (e) => {
+      let val = e.target.value.trim();
+      if (!val.startsWith('#')) val = '#' + val;
+      if (/^#([0-9A-F]{3}|[0-9A-F]{6})$/i.test(val)) {
+        this.setMatcherColor(val);
+      }
     });
 
     baseHexInput?.addEventListener('change', (e) => {
       let val = e.target.value.trim();
       if (!val.startsWith('#')) val = '#' + val;
-      if (/^#[0-9A-F]{6}$/i.test(val)) {
-        this.matcherBaseColor = val;
-        if (baseColorInput) baseColorInput.value = val;
-        this.renderMatcherResults();
+      if (/^#([0-9A-F]{3}|[0-9A-F]{6})$/i.test(val)) {
+        this.setMatcherColor(val);
       }
     });
 
@@ -224,17 +228,23 @@ class GradientMatchApp {
       if (e.target.id === 'modal-overlay') this.closeModal();
     });
 
-    // Modal Fullscreen Triggers
+    // Modal Fullscreen & Animate Triggers
     document.getElementById('modal-preview-fullscreen')?.addEventListener('click', () => {
       if (this.selectedGradient) this.openFullscreen(this.selectedGradient);
     });
     document.getElementById('modal-btn-fullscreen')?.addEventListener('click', () => {
       if (this.selectedGradient) this.openFullscreen(this.selectedGradient);
     });
+    document.getElementById('modal-preview-animate')?.addEventListener('click', () => {
+      this.toggleModalAnimation();
+    });
 
-    // Builder Fullscreen Trigger
+    // Builder Fullscreen & Animate Triggers
     document.getElementById('builder-fullscreen-btn')?.addEventListener('click', () => {
       this.openFullscreen(this.builderGradient, [this.builderGradient]);
+    });
+    document.getElementById('builder-animate-btn')?.addEventListener('click', () => {
+      this.toggleBuilderAnimation();
     });
 
     // Fullscreen Overlay Event Listeners
@@ -387,18 +397,23 @@ class GradientMatchApp {
 
   // --- Modal Inspector ---
   openModal(gradient) {
+    if (!gradient) return;
     this.selectedGradient = gradient;
     const modalEl = document.getElementById('modal-overlay');
     if (!modalEl) return;
 
     // Render Modal Content
-    document.getElementById('modal-title').textContent = gradient.name;
-    document.getElementById('modal-category-tag').textContent = gradient.category.toUpperCase();
+    document.getElementById('modal-title').textContent = gradient.name || 'Gradient';
+    document.getElementById('modal-category-tag').textContent = (gradient.category || gradient.harmonyType || 'MATCHED').toUpperCase();
     
     const previewEl = document.getElementById('modal-preview-swatch');
     if (previewEl) {
       previewEl.style.cssText = generateCss(gradient);
+      previewEl.classList.remove('preview-animated');
     }
+
+    const modalAnimBtn = document.getElementById('modal-preview-animate');
+    if (modalAnimBtn) modalAnimBtn.classList.remove('active');
 
     // Render Color Hex Badges
     const hexContainer = document.getElementById('modal-hex-badges');
@@ -828,6 +843,62 @@ class GradientMatchApp {
     }
   }
 
+  // Helper to set base color for matcher
+  setMatcherColor(hex) {
+    let val = hex.trim();
+    if (!val.startsWith('#')) val = '#' + val;
+    if (/^#([0-9A-F]{3}|[0-9A-F]{6})$/i.test(val)) {
+      if (val.length === 4) {
+        val = '#' + val[1] + val[1] + val[2] + val[2] + val[3] + val[3];
+      }
+      this.matcherBaseColor = val.toUpperCase();
+      const baseColorInput = document.getElementById('matcher-color-picker');
+      const baseHexInput = document.getElementById('matcher-hex-input');
+      if (baseColorInput) baseColorInput.value = this.matcherBaseColor;
+      if (baseHexInput) baseHexInput.value = this.matcherBaseColor;
+      this.renderMatcherResults();
+    }
+  }
+
+  // Handle color dot clicks on cards
+  handleColorClick(color) {
+    if (this.activeTab === 'matcher') {
+      this.setMatcherColor(color);
+      this.showToast(`Selected ${color} as base color! 🎨`);
+    } else {
+      this.copyToClipboard(color, `Copied ${color}`);
+    }
+  }
+
+  // Toggle Live Animation in Builder
+  toggleBuilderAnimation() {
+    const previewEl = document.getElementById('builder-live-preview');
+    const btn = document.getElementById('builder-animate-btn');
+    if (!previewEl) return;
+
+    const isAnim = previewEl.classList.toggle('preview-animated');
+    if (btn) {
+      btn.classList.toggle('active', isAnim);
+      btn.classList.toggle('text-sky-400', isAnim);
+      btn.classList.toggle('text-muted', !isAnim);
+    }
+    this.showToast(isAnim ? '✨ Builder preview animation active' : 'Builder animation paused');
+  }
+
+  // Toggle Live Animation in Modal
+  toggleModalAnimation() {
+    const previewEl = document.getElementById('modal-preview-swatch');
+    const btn = document.getElementById('modal-preview-animate');
+    if (!previewEl) return;
+
+    const isAnim = previewEl.classList.toggle('preview-animated');
+    if (btn) {
+      btn.classList.toggle('active', isAnim);
+      btn.classList.toggle('bg-sky-500/40', isAnim);
+    }
+    this.showToast(isAnim ? '✨ Modal preview animation active' : 'Modal animation paused');
+  }
+
   // Template helper for Gradient Card HTML
   createCardHtml(g, isMatched = false) {
     const isFav = this.favorites.includes(g.id);
@@ -849,7 +920,7 @@ class GradientMatchApp {
           </div>
           <div class="flex items-center justify-between mt-2 text-xs text-muted">
             <div class="flex items-center gap-1.5 overflow-hidden">
-              ${g.stops.map(s => `<span class="w-3 h-3 rounded-full border border-white/20 flex-shrink-0" style="background:${s.color}"></span>`).join('')}
+              ${g.stops.map(s => `<span class="w-3.5 h-3.5 rounded-full border border-white/20 flex-shrink-0 cursor-pointer hover:scale-125 transition-transform" style="background:${s.color}" onclick="event.stopPropagation(); app.handleColorClick('${s.color}')" title="Use ${s.color}"></span>`).join('')}
               <span class="font-mono text-xs text-subtle truncate">${g.stops.map(s => s.color).join(' → ')}</span>
             </div>
             <button class="btn-secondary text-xs px-2.5 py-1 flex-shrink-0 ml-2" onclick="event.stopPropagation(); app.copyToClipboard('${generateCss(g)}', 'CSS Copied!')">
