@@ -448,3 +448,210 @@ input[type="range"]::-webkit-slider-thumb:hover {
     grid-template-columns: 1fr;
   }
 }
+
+/* =========================================================
+   FULL-SCREEN IMMERSIVE EXPERIENCE MODE
+   ========================================================= */
+.fullscreen-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  background: #060b13;
+  transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.fullscreen-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.fullscreen-canvas {
+  position: absolute;
+  inset: -5%;
+  width: 110%;
+  height: 110%;
+  transition: background 0.4s ease;
+}
+
+.fullscreen-canvas.ambient-animated {
+  animation: ambientLiveDrift 16s ease-in-out infinite alternate;
+}
+
+@keyframes ambientLiveDrift {
+  0% {
+    transform: scale(1) rotate(0deg);
+    filter: hue-rotate(0deg) saturate(100%);
+  }
+  50% {
+    transform: scale(1.08) rotate(4deg);
+    filter: hue-rotate(15deg) saturate(115%);
+  }
+  100% {
+    transform: scale(1.02) rotate(-4deg);
+    filter: hue-rotate(-10deg) saturate(105%);
+  }
+}
+
+/* Floating Glass HUDs */
+.fullscreen-hud {
+  position: absolute;
+  z-index: 30;
+  background: rgba(8, 14, 26, 0.72);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-full);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45);
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.fullscreen-hud-top {
+  top: 20px;
+  left: 20px;
+  right: 20px;
+  max-width: 920px;
+  margin: 0 auto;
+  animation: slideDownHud 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.fullscreen-hud-bottom {
+  bottom: 24px;
+  left: 20px;
+  right: 20px;
+  max-width: 840px;
+  margin: 0 auto;
+  animation: slideUpHud 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes slideDownHud {
+  from { transform: translateY(-30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slideUpHud {
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.hud-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  border-radius: var(--radius-full);
+  padding: 6px 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.hud-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.28);
+  transform: translateY(-1px);
+}
+
+.hud-btn:active {
+  transform: translateY(0);
+}
+
+.hud-btn.active {
+  background: rgba(56, 189, 248, 0.28);
+  border-color: rgba(56, 189, 248, 0.6);
+  color: #38bdf8;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
+}
+
+.hud-btn-close:hover {
+  background: rgba(244, 63, 94, 0.3);
+  border-color: rgba(244, 63, 94, 0.6);
+  color: #f43f5e;
+}
+
+.hud-action-btn {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  border-radius: var(--radius-full);
+  padding: 6px 14px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.hud-action-btn:hover {
+  background: #ffffff;
+  color: #0f172a;
+  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.25);
+  transform: translateY(-1px);
+}
+
+/* Mock UI Preview Overlay */
+.fullscreen-mock-ui {
+  position: absolute;
+  inset: 0;
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  pointer-events: none;
+  animation: fadeInMock 0.3s ease forwards;
+}
+
+@keyframes fadeInMock {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.mock-glass-card {
+  background: rgba(8, 14, 26, 0.48);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 28px;
+  padding: 44px 36px;
+  text-align: center;
+  max-width: 580px;
+  width: 100%;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45);
+  pointer-events: auto;
+  animation: mockCardFloat 6s ease-in-out infinite alternate;
+}
+
+@keyframes mockCardFloat {
+  0% { transform: translateY(0px); }
+  100% { transform: translateY(-10px); }
+}
+
+/* Quick Action Button on Cards */
+.card-quick-fullscreen {
+  opacity: 0;
+  transform: scale(0.85);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.swatch-card:hover .card-quick-fullscreen {
+  opacity: 1;
+  transform: scale(1);
+}

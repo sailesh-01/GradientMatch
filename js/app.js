@@ -45,6 +45,15 @@ class GradientMatchApp {
       ]
     };
 
+    // Full-Screen Immersive Experience State
+    this.isFullscreen = false;
+    this.fullscreenGradient = null;
+    this.fullscreenList = [];
+    this.fullscreenIndex = 0;
+    this.isAmbientAnimated = false;
+    this.showMockUi = false;
+    this.clockInterval = null;
+
     // 2. Initialize App
     this.initTheme();
     this.initUrlState();
@@ -214,6 +223,22 @@ class GradientMatchApp {
     document.getElementById('modal-overlay')?.addEventListener('click', (e) => {
       if (e.target.id === 'modal-overlay') this.closeModal();
     });
+
+    // Modal Fullscreen Triggers
+    document.getElementById('modal-preview-fullscreen')?.addEventListener('click', () => {
+      if (this.selectedGradient) this.openFullscreen(this.selectedGradient);
+    });
+    document.getElementById('modal-btn-fullscreen')?.addEventListener('click', () => {
+      if (this.selectedGradient) this.openFullscreen(this.selectedGradient);
+    });
+
+    // Builder Fullscreen Trigger
+    document.getElementById('builder-fullscreen-btn')?.addEventListener('click', () => {
+      this.openFullscreen(this.builderGradient, [this.builderGradient]);
+    });
+
+    // Fullscreen Overlay Event Listeners
+    this.bindFullscreenEvents();
   }
 
   // --- Custom Builder Controls ---
@@ -571,6 +596,25 @@ class GradientMatchApp {
 
   // Open modal by gradient ID
   openModalById(id) {
+    let g = this.findGradientById(id);
+    if (g) this.openModal(g);
+  }
+
+  // Open fullscreen by gradient ID
+  openFullscreenById(id) {
+    let g = this.findGradientById(id);
+    if (g) {
+      let list = this.gradients;
+      if (this.activeTab === 'favorites') {
+        list = this.gradients.filter(x => this.favorites.includes(x.id));
+      } else if (this.activeTab === 'matcher' && this.currentMatchedGradients) {
+        list = this.currentMatchedGradients;
+      }
+      this.openFullscreen(g, list);
+    }
+  }
+
+  findGradientById(id) {
     let g = this.gradients.find(x => x.id === id);
     if (!g && this.currentMatchedGradients) {
       g = this.currentMatchedGradients.find(x => x.id === id);
@@ -578,7 +622,210 @@ class GradientMatchApp {
     if (!g && this.builderGradient && this.builderGradient.id === id) {
       g = this.builderGradient;
     }
-    if (g) this.openModal(g);
+    return g;
+  }
+
+  // --- Full-Screen Experience Controller ---
+  bindFullscreenEvents() {
+    // Close / Exit
+    document.getElementById('fullscreen-btn-close')?.addEventListener('click', () => this.closeFullscreen());
+    
+    // Prev / Next Navigation
+    document.getElementById('fullscreen-btn-prev')?.addEventListener('click', () => this.prevFullscreenGradient());
+    document.getElementById('fullscreen-btn-next')?.addEventListener('click', () => this.nextFullscreenGradient());
+
+    // Ambient Animation Toggle
+    document.getElementById('fullscreen-btn-animate')?.addEventListener('click', () => this.toggleFullscreenAnimation());
+
+    // Mock UI Overlay Toggle
+    document.getElementById('fullscreen-btn-mockui')?.addEventListener('click', () => this.toggleMockUi());
+
+    // Native Fullscreen Toggle
+    document.getElementById('fullscreen-btn-native')?.addEventListener('click', () => this.toggleNativeFullscreen());
+
+    // Export Quick Actions in Fullscreen
+    document.getElementById('fullscreen-btn-copy-css')?.addEventListener('click', () => {
+      if (this.fullscreenGradient) {
+        this.copyToClipboard(generateCss(this.fullscreenGradient), 'CSS copied to clipboard!');
+      }
+    });
+
+    document.getElementById('fullscreen-btn-download-png')?.addEventListener('click', () => {
+      if (this.fullscreenGradient) {
+        const fname = `${(this.fullscreenGradient.name || 'gradient').toLowerCase().replace(/\s+/g, '-')}-fullscreen.png`;
+        downloadPng(this.fullscreenGradient, fname);
+      }
+    });
+
+    // Keyboard Shortcuts
+    window.addEventListener('keydown', (e) => {
+      // If typing inside an input/textarea, ignore shortcuts
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) return;
+
+      if (this.isFullscreen) {
+        if (e.key === 'Escape') {
+          this.closeFullscreen();
+        } else if (e.key === 'ArrowRight') {
+          this.nextFullscreenGradient();
+        } else if (e.key === 'ArrowLeft') {
+          this.prevFullscreenGradient();
+        } else if (e.code === 'Space') {
+          e.preventDefault();
+          this.toggleFullscreenAnimation();
+        } else if (e.key === 'u' || e.key === 'U') {
+          this.toggleMockUi();
+        } else if (e.key === 'f' || e.key === 'F') {
+          this.toggleNativeFullscreen();
+        }
+      } else {
+        // If Modal is open and user presses F, open Fullscreen
+        const modalEl = document.getElementById('modal-overlay');
+        if (modalEl?.classList.contains('open') && (e.key === 'f' || e.key === 'F')) {
+          if (this.selectedGradient) this.openFullscreen(this.selectedGradient);
+        }
+      }
+    });
+  }
+
+  openFullscreen(gradient, sourceList = null) {
+    this.fullscreenGradient = gradient;
+    this.fullscreenList = (sourceList && sourceList.length > 0) ? sourceList : this.gradients;
+    this.fullscreenIndex = this.fullscreenList.findIndex(g => g.id === gradient.id);
+    if (this.fullscreenIndex < 0) this.fullscreenIndex = 0;
+
+    const overlay = document.getElementById('fullscreen-overlay');
+    if (!overlay) return;
+
+    this.updateFullscreenContent(gradient);
+    overlay.classList.add('open');
+    this.isFullscreen = true;
+
+    if (this.showMockUi) {
+      this.startClock();
+    }
+  }
+
+  updateFullscreenContent(gradient) {
+    this.fullscreenGradient = gradient;
+    const canvas = document.getElementById('fullscreen-canvas');
+    if (canvas) {
+      canvas.style.cssText = generateCss(gradient);
+    }
+
+    const titleEl = document.getElementById('fullscreen-title');
+    if (titleEl) titleEl.textContent = gradient.name;
+
+    const tagEl = document.getElementById('fullscreen-category-tag');
+    if (tagEl) tagEl.textContent = (gradient.category || 'CUSTOM').toUpperCase();
+
+    const counterEl = document.getElementById('fullscreen-counter');
+    if (counterEl) {
+      counterEl.textContent = `${this.fullscreenIndex + 1} / ${this.fullscreenList.length}`;
+    }
+
+    // Render Hex Badges in Bottom HUD
+    const hexContainer = document.getElementById('fullscreen-hex-badges');
+    if (hexContainer && gradient.stops) {
+      hexContainer.innerHTML = gradient.stops.map(s => `
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono bg-black/50 border border-white/20 text-white cursor-pointer hover:bg-white/20 flex-shrink-0 transition" onclick="app.copyToClipboard('${s.color}', 'Copied ${s.color}')" title="Click to copy">
+          <span class="w-2.5 h-2.5 rounded-full border border-white/30" style="background: ${s.color}"></span>
+          ${s.color}
+        </span>
+      `).join('');
+    }
+  }
+
+  closeFullscreen() {
+    const overlay = document.getElementById('fullscreen-overlay');
+    if (overlay) overlay.classList.remove('open');
+    this.isFullscreen = false;
+    this.stopClock();
+
+    // Exit native fullscreen if active
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch(() => {});
+    }
+  }
+
+  nextFullscreenGradient() {
+    if (!this.fullscreenList || this.fullscreenList.length === 0) return;
+    this.fullscreenIndex = (this.fullscreenIndex + 1) % this.fullscreenList.length;
+    this.updateFullscreenContent(this.fullscreenList[this.fullscreenIndex]);
+  }
+
+  prevFullscreenGradient() {
+    if (!this.fullscreenList || this.fullscreenList.length === 0) return;
+    this.fullscreenIndex = (this.fullscreenIndex - 1 + this.fullscreenList.length) % this.fullscreenList.length;
+    this.updateFullscreenContent(this.fullscreenList[this.fullscreenIndex]);
+  }
+
+  toggleFullscreenAnimation() {
+    this.isAmbientAnimated = !this.isAmbientAnimated;
+    const canvas = document.getElementById('fullscreen-canvas');
+    const animBtn = document.getElementById('fullscreen-btn-animate');
+    
+    if (canvas) {
+      canvas.classList.toggle('ambient-animated', this.isAmbientAnimated);
+    }
+    if (animBtn) {
+      animBtn.classList.toggle('active', this.isAmbientAnimated);
+    }
+
+    this.showToast(this.isAmbientAnimated ? '✨ Ambient live motion enabled' : 'Ambient motion paused');
+  }
+
+  toggleMockUi() {
+    this.showMockUi = !this.showMockUi;
+    const mockEl = document.getElementById('fullscreen-mock-ui');
+    const mockBtn = document.getElementById('fullscreen-btn-mockui');
+
+    if (mockEl) {
+      mockEl.classList.toggle('hidden', !this.showMockUi);
+    }
+    if (mockBtn) {
+      mockBtn.classList.toggle('active', this.showMockUi);
+    }
+
+    if (this.showMockUi) {
+      this.startClock();
+    } else {
+      this.stopClock();
+    }
+  }
+
+  startClock() {
+    this.stopClock();
+    const updateTime = () => {
+      const clockEl = document.getElementById('fullscreen-clock');
+      if (clockEl) {
+        const now = new Date();
+        clockEl.textContent = now.toLocaleTimeString();
+      }
+    };
+    updateTime();
+    this.clockInterval = setInterval(updateTime, 1000);
+  }
+
+  stopClock() {
+    if (this.clockInterval) {
+      clearInterval(this.clockInterval);
+      this.clockInterval = null;
+    }
+  }
+
+  toggleNativeFullscreen() {
+    const nativeBtn = document.getElementById('fullscreen-btn-native');
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().then(() => {
+        nativeBtn?.classList.add('active');
+      }).catch(() => {
+        this.showToast('Native fullscreen not supported');
+      });
+    } else {
+      document.exitFullscreen().then(() => {
+        nativeBtn?.classList.remove('active');
+      }).catch(() => {});
+    }
   }
 
   // Template helper for Gradient Card HTML
@@ -588,7 +835,11 @@ class GradientMatchApp {
 
     return `
       <div class="swatch-card glass-card" onclick="app.openModalById('${g.id}')">
-        <div class="swatch-preview-full" style="${cssStyle}"></div>
+        <div class="swatch-preview-full relative" style="${cssStyle}">
+          <button class="card-quick-fullscreen absolute top-2.5 right-2.5 w-8 h-8 rounded-full bg-black/60 hover:bg-black/85 text-white backdrop-blur-md border border-white/20 flex items-center justify-center shadow-md transition" onclick="event.stopPropagation(); app.openFullscreenById('${g.id}')" title="Experience Full Screen">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+          </button>
+        </div>
         <div class="swatch-content">
           <div class="flex items-center justify-between">
             <h3 class="font-bold text-base text-main truncate pr-2">${g.name}</h3>
@@ -613,3 +864,4 @@ class GradientMatchApp {
 
 // Instantiate App globally
 window.app = new GradientMatchApp();
+

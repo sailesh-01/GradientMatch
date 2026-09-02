@@ -158,11 +158,17 @@
             <div class="glass-card p-4">
               <div class="flex items-center justify-between mb-3">
                 <span class="text-xs font-semibold text-muted uppercase tracking-wider">Live Preview Canvas</span>
-                <span id="builder-contrast-badge" class="px-3 py-1 text-xs font-semibold rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                  WCAG AA Pass
-                </span>
+                <div class="flex items-center gap-2">
+                  <button id="builder-fullscreen-btn" class="text-xs px-2.5 py-1 rounded-full bg-card hover:bg-card-hover border border-card text-sky-400 flex items-center gap-1.5 transition">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+                    <span>Full Screen</span>
+                  </button>
+                  <span id="builder-contrast-badge" class="px-3 py-1 text-xs font-semibold rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                    WCAG AA Pass
+                  </span>
+                </div>
               </div>
-              <div id="builder-live-preview" class="w-full h-80 sm:h-96 rounded-xl transition-all duration-300 shadow-inner flex items-center justify-center">
+              <div id="builder-live-preview" class="w-full h-80 sm:h-96 rounded-xl transition-all duration-300 shadow-inner flex items-center justify-center relative group">
                 <div class="bg-black/40 backdrop-blur-md px-6 py-4 rounded-xl border border-white/10 text-center">
                   <h3 class="text-2xl font-bold text-white mb-1">Gradient Preview</h3>
                   <p class="text-xs text-white/80">Sample Typography Over Canvas</p>
@@ -285,7 +291,13 @@
       </div>
 
       <!-- Large Preview Canvas -->
-      <div id="modal-preview-swatch" class="w-full h-64 sm:h-72 rounded-xl border border-card shadow-lg flex items-center justify-center"></div>
+      <div class="relative group">
+        <div id="modal-preview-swatch" class="w-full h-64 sm:h-72 rounded-xl border border-card shadow-lg flex items-center justify-center"></div>
+        <button id="modal-preview-fullscreen" class="absolute top-3 right-3 px-3 py-1.5 rounded-full bg-black/60 hover:bg-black/80 text-white text-xs font-semibold backdrop-blur-md border border-white/20 flex items-center gap-1.5 shadow-lg transition opacity-90 hover:opacity-100">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+          <span>Full Screen Experience</span>
+        </button>
+      </div>
 
       <!-- Color Stops Badges -->
       <div>
@@ -314,13 +326,97 @@
 
       <!-- Export Actions Row -->
       <div class="flex flex-wrap gap-2.5 pt-4 border-t border-card">
-        <button id="modal-copy-css" class="btn-primary text-xs flex-1">Copy CSS</button>
+        <button id="modal-btn-fullscreen" class="btn-primary text-xs flex-1 bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 flex items-center justify-center gap-1.5">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+          <span>Full Screen</span>
+        </button>
+        <button id="modal-copy-css" class="btn-secondary text-xs flex-1">Copy CSS</button>
         <button id="modal-copy-tw" class="btn-secondary text-xs flex-1">Copy Tailwind</button>
         <button id="modal-download-svg" class="btn-secondary text-xs flex-1">Copy SVG</button>
         <button id="modal-download-png" class="btn-secondary text-xs flex-1">Download PNG</button>
-        <button id="modal-share-url" class="btn-secondary text-xs flex-1">Share URL Link</button>
+        <button id="modal-share-url" class="btn-secondary text-xs flex-1">Share Link</button>
       </div>
 
+    </div>
+  </div>
+
+  <!-- FULL-SCREEN IMMERSIVE EXPERIENCE OVERLAY -->
+  <div id="fullscreen-overlay" class="fullscreen-overlay">
+    <!-- Gradient Canvas Layer -->
+    <div id="fullscreen-canvas" class="fullscreen-canvas"></div>
+    
+    <!-- Floating Top HUD -->
+    <div class="fullscreen-hud fullscreen-hud-top">
+      <div class="flex items-center gap-2.5">
+        <span id="fullscreen-category-tag" class="text-xs font-mono font-bold text-sky-300 bg-sky-950/70 px-2.5 py-0.5 rounded-full border border-sky-400/30">CATEGORY</span>
+        <h2 id="fullscreen-title" class="text-base sm:text-lg font-bold text-white tracking-tight drop-shadow-md">Gradient Name</h2>
+      </div>
+
+      <div class="flex items-center gap-1.5 sm:gap-2">
+        <!-- Prev / Next Navigation -->
+        <button id="fullscreen-btn-prev" class="hud-btn" title="Previous Gradient (Left Arrow)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <span id="fullscreen-counter" class="text-xs font-mono text-white/80 px-1.5 hidden sm:inline">1 / 50</span>
+        <button id="fullscreen-btn-next" class="hud-btn" title="Next Gradient (Right Arrow)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+
+        <div class="h-4 w-px bg-white/20 mx-1"></div>
+
+        <!-- Ambient Motion / Dynamic Animation Toggle -->
+        <button id="fullscreen-btn-animate" class="hud-btn" title="Toggle Live Ambient Animation (Space)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+          <span class="hidden md:inline text-xs">Animate</span>
+        </button>
+
+        <!-- Mock UI Overlay Toggle -->
+        <button id="fullscreen-btn-mockui" class="hud-btn" title="Toggle Mock UI & Typography Overlay (U)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+          <span class="hidden md:inline text-xs">UI Test</span>
+        </button>
+
+        <!-- Native Fullscreen Toggle -->
+        <button id="fullscreen-btn-native" class="hud-btn" title="Toggle Native Fullscreen (F)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+        </button>
+
+        <div class="h-4 w-px bg-white/20 mx-1"></div>
+
+        <!-- Close / Exit Button -->
+        <button id="fullscreen-btn-close" class="hud-btn hud-btn-close" title="Exit Fullscreen (Esc)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Optional Mock UI Overlay Canvas -->
+    <div id="fullscreen-mock-ui" class="fullscreen-mock-ui hidden">
+      <div class="mock-glass-card">
+        <div id="fullscreen-clock" class="text-4xl sm:text-6xl font-extrabold font-mono tracking-wider text-white mb-2 drop-shadow-lg">12:00:00</div>
+        <h3 class="text-2xl sm:text-3xl font-bold text-white mb-2 drop-shadow">Full-Screen Visualizer</h3>
+        <p class="text-sm sm:text-base text-white/85 max-w-md mx-auto mb-6">Experience the depth, color balance, and accessibility of your gradient across the entire display.</p>
+        <div class="flex items-center justify-center gap-3">
+          <button class="px-5 py-2.5 rounded-full bg-white text-slate-900 font-semibold text-xs sm:text-sm shadow-xl hover:bg-slate-100 transition">Sample Action</button>
+          <button class="px-5 py-2.5 rounded-full bg-black/40 text-white font-semibold text-xs sm:text-sm border border-white/20 backdrop-blur-md hover:bg-black/60 transition">Secondary UI</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Floating Bottom HUD -->
+    <div class="fullscreen-hud fullscreen-hud-bottom">
+      <div id="fullscreen-hex-badges" class="flex items-center gap-2 overflow-x-auto max-w-md pb-0.5"></div>
+      
+      <div class="flex items-center gap-2 flex-shrink-0">
+        <button id="fullscreen-btn-copy-css" class="hud-action-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          <span>Copy CSS</span>
+        </button>
+        <button id="fullscreen-btn-download-png" class="hud-action-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span>Download PNG</span>
+        </button>
+      </div>
     </div>
   </div>
 
