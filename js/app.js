@@ -51,6 +51,9 @@ class GradientMatchApp {
     this.fullscreenList = [];
     this.fullscreenIndex = 0;
     this.isAmbientAnimated = false;
+    this.fullscreenAnimFrame = null;
+    this.isBuilderAnimated = false;
+    this.builderAnimFrame = null;
     this.showMockUi = false;
     this.clockInterval = null;
 
@@ -751,6 +754,11 @@ class GradientMatchApp {
   }
 
   closeFullscreen() {
+    this.stopFullscreenAnimation();
+    this.isAmbientAnimated = false;
+    const animBtn = document.getElementById('fullscreen-btn-animate');
+    if (animBtn) animBtn.classList.remove('active');
+
     const overlay = document.getElementById('fullscreen-overlay');
     if (overlay) overlay.classList.remove('open');
     this.isFullscreen = false;
@@ -766,27 +774,72 @@ class GradientMatchApp {
     if (!this.fullscreenList || this.fullscreenList.length === 0) return;
     this.fullscreenIndex = (this.fullscreenIndex + 1) % this.fullscreenList.length;
     this.updateFullscreenContent(this.fullscreenList[this.fullscreenIndex]);
+    if (this.isAmbientAnimated) {
+      this.startFullscreenAnimation();
+    }
   }
 
   prevFullscreenGradient() {
     if (!this.fullscreenList || this.fullscreenList.length === 0) return;
     this.fullscreenIndex = (this.fullscreenIndex - 1 + this.fullscreenList.length) % this.fullscreenList.length;
     this.updateFullscreenContent(this.fullscreenList[this.fullscreenIndex]);
+    if (this.isAmbientAnimated) {
+      this.startFullscreenAnimation();
+    }
+  }
+
+  startFullscreenAnimation() {
+    this.stopFullscreenAnimation();
+    if (!this.fullscreenGradient) return;
+
+    let currentAngle = (this.fullscreenGradient.angle !== undefined) ? this.fullscreenGradient.angle : 135;
+    const canvas = document.getElementById('fullscreen-canvas');
+
+    const animStep = () => {
+      if (!this.isAmbientAnimated || !this.isFullscreen) {
+        this.stopFullscreenAnimation();
+        return;
+      }
+      currentAngle = (currentAngle + 0.4) % 360;
+      if (canvas && this.fullscreenGradient) {
+        const dynamicGrad = {
+          ...this.fullscreenGradient,
+          angle: Math.round(currentAngle)
+        };
+        canvas.style.cssText = generateCss(dynamicGrad);
+      }
+      this.fullscreenAnimFrame = requestAnimationFrame(animStep);
+    };
+
+    this.fullscreenAnimFrame = requestAnimationFrame(animStep);
+  }
+
+  stopFullscreenAnimation() {
+    if (this.fullscreenAnimFrame) {
+      cancelAnimationFrame(this.fullscreenAnimFrame);
+      this.fullscreenAnimFrame = null;
+    }
+    const canvas = document.getElementById('fullscreen-canvas');
+    if (canvas && this.fullscreenGradient) {
+      canvas.style.cssText = generateCss(this.fullscreenGradient);
+    }
   }
 
   toggleFullscreenAnimation() {
     this.isAmbientAnimated = !this.isAmbientAnimated;
-    const canvas = document.getElementById('fullscreen-canvas');
     const animBtn = document.getElementById('fullscreen-btn-animate');
     
-    if (canvas) {
-      canvas.classList.toggle('ambient-animated', this.isAmbientAnimated);
-    }
     if (animBtn) {
       animBtn.classList.toggle('active', this.isAmbientAnimated);
     }
 
-    this.showToast(this.isAmbientAnimated ? '✨ Ambient live motion enabled' : 'Ambient motion paused');
+    if (this.isAmbientAnimated) {
+      this.startFullscreenAnimation();
+    } else {
+      this.stopFullscreenAnimation();
+    }
+
+    this.showToast(this.isAmbientAnimated ? '✨ Live 360° gradient rotation active' : 'Live rotation paused');
   }
 
   toggleMockUi() {
@@ -872,17 +925,54 @@ class GradientMatchApp {
 
   // Toggle Live Animation in Builder
   toggleBuilderAnimation() {
-    const previewEl = document.getElementById('builder-live-preview');
+    this.isBuilderAnimated = !this.isBuilderAnimated;
     const btn = document.getElementById('builder-animate-btn');
-    if (!previewEl) return;
-
-    const isAnim = previewEl.classList.toggle('preview-animated');
+    const previewEl = document.getElementById('builder-live-preview');
     if (btn) {
-      btn.classList.toggle('active', isAnim);
-      btn.classList.toggle('text-sky-400', isAnim);
-      btn.classList.toggle('text-muted', !isAnim);
+      btn.classList.toggle('active', this.isBuilderAnimated);
+      btn.classList.toggle('text-sky-400', this.isBuilderAnimated);
+      btn.classList.toggle('text-muted', !this.isBuilderAnimated);
     }
-    this.showToast(isAnim ? '✨ Builder preview animation active' : 'Builder animation paused');
+
+    if (this.isBuilderAnimated) {
+      this.startBuilderAnimation();
+      this.showToast('✨ Builder live rotation active');
+    } else {
+      this.stopBuilderAnimation();
+      this.showToast('Builder animation paused');
+    }
+  }
+
+  startBuilderAnimation() {
+    this.stopBuilderAnimation();
+    let angle = this.builderGradient.angle || 135;
+    const previewEl = document.getElementById('builder-live-preview');
+
+    const step = () => {
+      if (!this.isBuilderAnimated || this.activeTab !== 'builder') {
+        this.stopBuilderAnimation();
+        return;
+      }
+      angle = (angle + 0.5) % 360;
+      if (previewEl) {
+        const animGrad = { ...this.builderGradient, angle: Math.round(angle) };
+        previewEl.style.cssText = generateCss(animGrad);
+      }
+      this.builderAnimFrame = requestAnimationFrame(step);
+    };
+
+    this.builderAnimFrame = requestAnimationFrame(step);
+  }
+
+  stopBuilderAnimation() {
+    if (this.builderAnimFrame) {
+      cancelAnimationFrame(this.builderAnimFrame);
+      this.builderAnimFrame = null;
+    }
+    const previewEl = document.getElementById('builder-live-preview');
+    if (previewEl) {
+      previewEl.style.cssText = generateCss(this.builderGradient);
+    }
   }
 
   // Toggle Live Animation in Modal

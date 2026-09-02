@@ -510,49 +510,26 @@ input[type="range"]::-webkit-slider-thumb:hover {
 
 .fullscreen-canvas {
   position: absolute;
-  inset: -60vw -60vh;
-  width: 220vw;
-  height: 220vh;
-  transition: background 0.4s ease;
-  transform-origin: center center;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transition: background 0.05s ease;
 }
 
-.fullscreen-canvas.ambient-animated {
-  animation: ambientLiveSpin 12s linear infinite;
-}
-
-@keyframes ambientLiveSpin {
-  0% {
-    transform: rotate(0deg) scale(1.15);
-    filter: saturate(105%) hue-rotate(0deg);
-  }
-  50% {
-    transform: rotate(180deg) scale(1.25);
-    filter: saturate(120%) hue-rotate(25deg);
-  }
-  100% {
-    transform: rotate(360deg) scale(1.15);
-    filter: saturate(105%) hue-rotate(0deg);
-  }
-}
-
-/* Modal & Builder Preview Animation */
+/* Modal & Builder Preview Subtle Pulse Animation */
 .preview-animated {
-  animation: previewPulseSpin 6s ease-in-out infinite alternate !important;
+  animation: previewPulse 5s ease-in-out infinite alternate !important;
 }
 
-@keyframes previewPulseSpin {
+@keyframes previewPulse {
   0% {
-    filter: hue-rotate(0deg) saturate(100%);
-    transform: scale(1.02);
+    filter: saturate(100%) hue-rotate(0deg);
   }
   50% {
-    filter: hue-rotate(35deg) saturate(125%);
-    transform: scale(1.06);
+    filter: saturate(125%) hue-rotate(25deg);
   }
   100% {
-    filter: hue-rotate(-25deg) saturate(110%);
-    transform: scale(1.02);
+    filter: saturate(110%) hue-rotate(-20deg);
   }
 }
 
